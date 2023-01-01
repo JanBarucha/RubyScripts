@@ -72,21 +72,19 @@ loop do
     puts 'Too many req, next fetch in 60 second.....'
   else
 
-  #puts response.body
-
   data = JSON.parse(response.body)
   #rec_looking(data, output)
 
-
   data['data']['children'].each do |item|
     output << "title: #{item['data']['title']}  url: #{item['data']['url']} \n"
-  end
+    end
+
   puts output
   if output.length > 0
     send_requ(output,request_post,http)
+    end
   end
-  end
-  #puts response.body
+
   #if response.code == '200'
   # break
   #end
