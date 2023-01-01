@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 
 
 require 'net/http'
@@ -27,14 +27,15 @@ end
 http = Net::HTTP.new(web_endpoint.host,web_endpoint.port)
 http.use_ssl = true
 request_post = Net::HTTP::Post.new(web_endpoint)
-request_post["Content-Type"] = "application/json"
+request_post["Content-Type"] = "text/plain"
 
-output = {}
-output["title"] = []
-output["url"] = []
+output = ""
 
 
+
+=begin
 def rec_looking(values, some_array)
+
   values.each do |key, value|
     if value.is_a?(Hash)
       rec_looking(value, some_array)
@@ -54,6 +55,7 @@ def rec_looking(values, some_array)
       end
   end
   end
+=end
 
 def send_requ(output,request_post,http)
   j_data =  output.to_json
@@ -68,17 +70,22 @@ loop do
 
   if response.code == '429'
     puts 'Too many req, next fetch in 60 second.....'
-  end
+  else
 
   #puts response.body
 
   data = JSON.parse(response.body)
-  rec_looking(data, output)
+  #rec_looking(data, output)
 
-  if output["title"].size > 0 || output["url"].size > 0
+
+  data['data']['children'].each do |item|
+    output << "title: #{item['data']['title']}  url: #{item['data']['url']} \n"
+  end
+  puts output
+  if output.length > 0
     send_requ(output,request_post,http)
   end
-
+  end
   #puts response.body
   #if response.code == '200'
   # break
