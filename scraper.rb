@@ -4,8 +4,25 @@
 require 'net/http'
 require 'json'
 
+
 web_url = URI("https://www.reddit.com/r/subreddit.json")
 web_endpoint = URI("https://webhook.site/ff8e6c91-9c4e-4820-bf58-c01fa25a5b29")
+
+if not ARGV[0]
+  puts "Default web urls will be used "
+
+elsif ARGV[0].include?("https://") and ARGV[1] && ARGV[1].include?("https://")
+  web_url = URI(ARGV[0])
+  web_endpoint = URI(ARGV[1])
+
+  puts "Web url set to " + ARGV[0]
+  puts "Web endpoint set to " + ARGV[1]
+
+elsif ARGV[0] or ARGV[1]
+  puts "Problem with input urls check urls, I'm done"
+  exit 1
+end
+
 
 http = Net::HTTP.new(web_endpoint.host,web_endpoint.port)
 http.use_ssl = true
