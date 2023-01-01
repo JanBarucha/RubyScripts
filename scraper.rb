@@ -5,10 +5,12 @@ require 'net/http'
 require 'json'
 
 web_url = URI("https://www.reddit.com/r/subreddit.json")
-
 web_endpoint = URI("https://webhook.site/ff8e6c91-9c4e-4820-bf58-c01fa25a5b29")
 
-response = nil
+http = Net::HTTP.new(web_endpoint.host,web_endpoint.port)
+http.use_ssl = true
+request_post = Net::HTTP::Post.new(web_endpoint)
+request_post["Content-Type"] = "application/json"
 
 output = {}
 output["title"] = []
@@ -36,6 +38,12 @@ def rec_looking(values, some_array)
   end
   end
 
+def send_requ(output,request_post,http)
+  j_data =  output.to_json
+  request_post.body = j_data
+  response_post = http.request(request_post)
+
+end
 
 
 loop do
@@ -49,29 +57,19 @@ loop do
 
   data = JSON.parse(response.body)
   rec_looking(data, output)
-  puts output
 
-
-
+  if output["title"].size > 0 || output["url"].size > 0
+    send_requ(output,request_post,http)
+  end
 
   #puts response.body
-  if response.code == '200'
-    break
-  end
-  sleep 5
+  #if response.code == '200'
+  # break
+  #end
+  #
+  sleep 60
 end
 
-j_data =  output.to_json
-
-
-http = Net::HTTP.new(web_endpoint.host,web_endpoint.port)
-http.use_ssl = true
-
-request_post = Net::HTTP::Post.new(web_endpoint)
-request_post["Content-Type"] = "application/json"
-request_post.body = j_data
-
-response_post = http.request(request_post)
 
 #resp_from_post = Net::HTTP.start(web_endpoint.hostname, web_endpoint.port) do |http |
 # begin
